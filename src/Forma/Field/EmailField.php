@@ -25,12 +25,12 @@ class EmailField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
         $options['type'] = 'email';
 
         if (!isset($options['validator'])) {
-            $this->addValidator(new EmailValidator());
+            $options['validator']=new EmailValidator();
         }
 
         parent::__construct($options);

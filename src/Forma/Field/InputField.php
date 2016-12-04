@@ -98,11 +98,19 @@ abstract class InputField extends AbstractField
     {
         $template = '<input ';
         foreach ($this->getTags() as $kTag => $tag) {
-            if ($tag != '') {
-                $template .= $kTag . '="' . htmlspecialchars($tag) . '" ';
+            if (in_array($tag,['',false,null],true)) {
+                continue;
             }
+            $template .= $kTag;
+
+            if ($tag !== true) {
+                $template .= '="' . htmlspecialchars($tag) . '"';
+            }
+
+            $template .= ' ';
+
         }
-        $template .= ' />';
+        $template .= '/>';
         return $template;
 
     }

@@ -22,4 +22,14 @@ namespace Forma;
 interface RequestFile
 {
 
+    /**
+     * @return string
+     */
+    public function getExtension();
+
+    /**
+     * @return int
+     */
+    public function getSize();
+
 }

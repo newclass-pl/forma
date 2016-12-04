@@ -13,8 +13,6 @@
 
 namespace Forma\Field;
 
-use Judex\Validator\BooleanValidator;
-
 /**
  * FormBuilder field
  * @author Michal Tomczak (michal.tomczak@newclass.pl)
@@ -25,7 +23,7 @@ class CheckboxField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
         $options += [
             'checked' => false
@@ -33,12 +31,7 @@ class CheckboxField extends InputField
 
         $options['type'] = 'checkbox';
 
-        if (!isset($options['validator'])) {
-            $this->addValidator(new BooleanValidator());
-        }
-
         parent::__construct($options);
-
     }
 
     /**
@@ -61,7 +54,7 @@ class CheckboxField extends InputField
                 return 'on';
             }
         } else {
-            return false;
+            return null;
         }
     }
 

@@ -359,12 +359,16 @@ class FormBuilder
 
     /**
      * Get data from fields
-     * @return mixed[]
-     * @throws \Exception
+     * @return \mixed[]
+     * @throws FormException
      */
     public function getData()
     {
         $data = [];
+        if(!$this->isValid()){
+            return $data;
+        }
+
         foreach ($this->fields as $field) {
             if (preg_match('/^(.*?)(\[.*\])$/', $field->getName(), $result)) {
                 if ($result[2] == '') {
@@ -416,7 +420,7 @@ class FormBuilder
      */
     public function submit()
     {
-        if ($this->request) {
+        if (!$this->request) {
             throw new FormException('Request not found. Use method setRequest.');
         }
         $request = $this->request;
@@ -480,28 +484,29 @@ class FormBuilder
                             $field->setData($value);
                         }
                     } else {//for checkbox or disabled field
-                        $field->setData(null);
+                        $field->setData('');
                     }
                 }
             }
         }
 
         //validate
-        if ($request->isFullUploadedData()) {
-            foreach ($this->fields as $field) {
-                if (!$field->getValidators()) {
-                    continue;
-                }
-                $result = $field->validate($field->getData());
-                if ($result->isValid()) {
-                    continue;
-                }
-                $field->setError($result->getErrors());
-            }
-        } else {
+        if (!$request->isFullUploadedData()) {
             foreach ($this->fields as $field) {
                 $field->addError('Request data is too large.');
             }
+            return;
+        }
+
+        foreach ($this->fields as $field) {
+            if (!$field->getValidators()) {
+                continue;
+            }
+            $result = $field->validate();
+            if ($result->isValid()) {
+                continue;
+            }
+            $field->setError($result->getErrors());
         }
     }
 
@@ -514,14 +519,15 @@ class FormBuilder
     {
         $errors = [];
         foreach ($this->fields as $field) {
-            if (!$field->isValid()) {
-                foreach ($field->getErrors() as $error) {
-                    $errors[] = [
-                        'field' => $field->getLabel(),
-                        'message' => $error
-                    ];
+            if ($field->isValid()) {
+                continue;
+            }
+            foreach ($field->getErrors() as $error) {
+                $errors[] = [
+                    'field' => $field->getLabel(),
+                    'message' => $error
+                ];
 
-                }
             }
         }
 

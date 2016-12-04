@@ -17,6 +17,7 @@ namespace Forma;
 use Judex\AbstractValidator;
 use Judex\Validator\NotEmptyValidator;
 use Judex\ValidatorManager;
+use Judex\ValidatorNotFoundException;
 
 /**
  * FormBuilder field
@@ -38,12 +39,12 @@ abstract class AbstractField
     /**
      * @var bool
      */
-    private $isValid = true;
+    private $valid = true;
 
     /**
      * @var string[]
      */
-    private $errors;
+    private $errors=[];
 
     /**
      * @var
@@ -236,7 +237,17 @@ abstract class AbstractField
     public function setRequired($flag)
     {
         $this->tags['required'] = $flag;
-        $this->addValidator(new NotEmptyValidator());
+        if($flag){
+            $this->addValidator(new NotEmptyValidator());
+        }
+        else{
+            try{
+                $this->removeValidator(NotEmptyValidator::class);
+            }
+            catch (ValidatorNotFoundException $e){
+                //ignore
+            }
+        }
     }
 
     /**
@@ -292,7 +303,7 @@ abstract class AbstractField
      */
     public function isValid()
     {
-        return $this->isValid;
+        return $this->valid;
     }
 
     /**
@@ -314,7 +325,7 @@ abstract class AbstractField
     public function addError($error)
     {
         $this->errors[] = $error;
-        $this->isValid = false;
+        $this->valid = false;
         return $this;
     }
 
@@ -324,7 +335,9 @@ abstract class AbstractField
      */
     public function setError($errors)
     {
-        $this->errors = $errors;
+        foreach ($errors as $error){
+            $this->addError($error);
+        }
         return $this;
     }
 
@@ -369,12 +382,19 @@ abstract class AbstractField
     abstract public function labelRender();
 
     /**
-     * @param mixed $value
      * @return \Judex\Result
      */
-    public function validate($value)
+    public function validate()
     {
-        return $this->validatorManager->validate($value);
+        return $this->validatorManager->validate($this->getData());
+    }
+
+    /**
+     * @param string $validatorName
+     */
+    private function removeValidator($validatorName)
+    {
+        $this->validatorManager->removeValidator($validatorName);
     }
 
 }

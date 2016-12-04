@@ -16,6 +16,7 @@ namespace Forma\Field;
 
 use Forma\FileMaxSizeException;
 use Forma\FileValidator;
+use Judex\ValidatorException;
 
 /**
  * FormBuilder field
@@ -37,7 +38,7 @@ class FileField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options = [])
     {
 
         $options += array(
@@ -47,22 +48,33 @@ class FileField extends InputField
         $options['type'] = 'file';
 
         if (!isset($options['validator'])) {
-            $this->addValidator(new FileValidator());
+            $options['validator'] = new FileValidator();
         }
 
+        $accept = null;
         if (isset($options['accept'])) {
-            $this->setAccept($options['accept']);
+            $accept = $options['accept'];
             unset($options['accept']);
         }
 
+        $maxSize = null;
         if (isset($options['maxSize'])) {
-            $this->setMaxSize($options['maxSize']);
+            $maxSize = $options['maxSize'];
             unset($options['maxSize']);
         } else {
-            $this->setMaxSize($this->getServerMaxSize());
+            $maxSize = $this->getServerMaxSize();
         }
 
         parent::__construct($options);
+
+        if ($accept) {
+            $this->setAccept($accept);
+        }
+
+        if ($maxSize) {
+            $this->setMaxSize($maxSize);
+        }
+
     }
 
     /**
@@ -95,13 +107,16 @@ class FileField extends InputField
     {
         $this->setTag('accept', $accept);
 
-        /**
-         * @var FileValidator $validator
-         */
-        $validator = $this->getValidators();
-        if ($validator) {
+        try {
+            /**
+             * @var FileValidator $validator
+             */
+            $validator = $this->getValidator(FileValidator::class);
             $validator->setAccept($accept);
+        } catch (ValidatorException $e) {
+            //ignore
         }
+
     }
 
     /**
@@ -127,12 +142,14 @@ class FileField extends InputField
             throw new FileMaxSizeException($serverMaxSize);
         }
         $this->maxSize = $maxSize;
-        /**
-         * @var FileValidator $validator
-         */
-        $validator = $this->getValidators();
-        if ($validator) {
+        try {
+            /**
+             * @var FileValidator $validator
+             */
+            $validator = $this->getValidator(FileValidator::class);
             $validator->setMaxSize($maxSize);
+        } catch (ValidatorException $e) {
+            //ignore
         }
     }
 
@@ -178,12 +195,23 @@ class FileField extends InputField
         $template = '<input ';
 
         foreach ($this->getTags() as $kTag => $tag) {
-            if ($tag != '') {
-                if ($kTag == 'name' && $this->isMultiple()) {
-                    $tag .= '[]';
-                }
-                $template .= $kTag . '="' . htmlspecialchars($tag) . '" ';
+
+            if (in_array($tag,['',false,null],true)) {
+                continue;
             }
+
+            $template .= $kTag;
+
+            if ($kTag === 'name' && $this->isMultiple()) {
+                $tag .= '[]';
+            }
+
+            if ($tag !== true) {
+                $template .= '="' . htmlspecialchars($tag) . '"';
+            }
+
+            $template .= ' ';
+
         }
         $template .= ' />';
         return $template;

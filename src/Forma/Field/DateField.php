@@ -25,12 +25,12 @@ class DateField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
         $options['type'] = 'date';
 
         if (!isset($options['validator'])) {
-            $this->addValidator(new DateValidator());
+            $options['validator']=new DateValidator();
         }
 
         parent::__construct($options);

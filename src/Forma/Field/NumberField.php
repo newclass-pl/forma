@@ -32,7 +32,7 @@ class NumberField extends InputField
         $options['type'] = 'number';
 
         if (!isset($options['validator'])) {
-            $this->addValidator(new NumberValidator());
+            $options['validator']=new NumberValidator();
         }
 
         if (isset($options['min'])) {

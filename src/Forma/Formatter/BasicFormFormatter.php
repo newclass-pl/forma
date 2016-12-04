@@ -30,6 +30,16 @@ class BasicFormFormatter implements FormFormatter
     public function renderField(AbstractField $field)
     {
         $html = $field->render();
+        if($field->isValid()){
+            return $html;
+        }
+
+        $html.='<ul class="errors">';
+
+        foreach($field->getErrors() as $error){
+            $html.='<li>'.$error.'</li>';
+        }
+        $html.='</ul>';
         return $html;
     }
 
