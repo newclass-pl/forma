@@ -15,6 +15,8 @@
 namespace Forma\Field;
 
 use Forma\AbstractField;
+use Judex\Validator\CollectionValidator;
+use Judex\ValidatorException;
 
 /**
  * FormBuilder field
@@ -36,32 +38,34 @@ class SelectField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
+        $collection=null;
         if (isset($options['collection'])) {
-            $this->collection = $options['collection'];
+            $collection=$options['collection'];
             unset($options['collection']);
         }
 
+        $validator=null;
         if (!isset($options['validator'])) {
-//			$this->addValidator(new TextValidator()); //TODO add CollectionValidator
+            $validator=new CollectionValidator();
         }
 
-
         parent::__construct($options);
+
+        if($validator){
+            $this->addValidator($validator);
+        }
+
+        if($collection){
+            $this->setCollection($collection);
+        }
     }
 
     /**
      * Get collection data (options value)
      *
-     * @return mixed[] - eg:
-     * [
-     *    [
-     *        'value'=>'{string}'
-     *        ,'label'=>'{string}'
-     *    ]
-     *    ,...
-     * ]
+     * @return mixed[]
      */
     public function getCollection()
     {
@@ -71,18 +75,22 @@ class SelectField extends AbstractField
     /**
      * Set collection data (options value)
      *
-     * @param mixed[] $collection - eg:
-     * [
-     *    [
-     *        'value'=>'{string}'
-     *        ,'label'=>'{string}'
-     *    ]
-     *    ,...
-     * ]
+     * @param mixed[] $collection
      */
     public function setCollection($collection)
     {
         $this->collection = $collection;
+
+        try{
+            /**
+             * @var CollectionValidator $validator
+             */
+            $validator=$this->getValidator(CollectionValidator::class);
+            $validator->setCollection(array_keys($this->getCollection()));
+        }
+        catch (ValidatorException $e){
+            //ignore
+        }
     }
 
     /**
@@ -156,21 +164,33 @@ class SelectField extends AbstractField
     {
         $template = '<select ';
         foreach ($this->getTags() as $kTag => $tag) {
-            if ($tag != '') {
-                if ($kTag == 'name' && $this->isMultiple()) {
-                    $tag .= '[]';
-                }
-
-                $template .= $kTag . '="' . htmlspecialchars($tag) . '" ';
-
+            if (in_array($tag, [
+                '',
+                false,
+                null
+            ], true)) {
+                continue;
             }
+
+            $template .= $kTag;
+
+            if ($kTag === 'name' && $this->isMultiple()) {
+                $tag .= '[]';
+            }
+
+            if ($tag !== true) {
+                $template .= '="' . htmlspecialchars($tag) . '"';
+            }
+
+            $template .= ' ';
+
         }
 
         $template .= '>';
         $values = (is_array($this->getData()) ? $this->getData() : [$this->getData()]);
-        foreach ($this->collection as $option) {
-            $template .= '<option value="' . htmlspecialchars($option['value']) . '" ' .
-                (in_array($option['value'], $values) ? 'selected' : '') . '>' . htmlspecialchars($option['label']) .
+        foreach ($this->collection as $kOption=>$option) {
+            $template .= '<option value="' . htmlspecialchars($kOption) . '" ' .
+                (in_array($kOption, $values) ? 'selected' : '') . '>' . htmlspecialchars($option) .
                 '</option>';
         }
 

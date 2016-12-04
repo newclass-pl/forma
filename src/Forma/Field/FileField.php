@@ -196,7 +196,11 @@ class FileField extends InputField
 
         foreach ($this->getTags() as $kTag => $tag) {
 
-            if (in_array($tag,['',false,null],true)) {
+            if (in_array($tag, [
+                '',
+                false,
+                null
+            ], true)) {
                 continue;
             }
 

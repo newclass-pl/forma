@@ -11,7 +11,7 @@
   ],
   "require": {
     "php": ">=5.5.0",
-    "newclass/judex": "^1.1"
+    "newclass/judex": "^1.2"
   },
   "autoload": {
     "psr-4": {
