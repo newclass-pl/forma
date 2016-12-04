@@ -14,8 +14,6 @@
 
 namespace Forma\Field;
 
-use ItePHP\Validator\TextValidator;
-
 /**
  * FormBuilder field
  * @author Michal Tomczak (michal.tomczak@newclass.pl)
@@ -26,7 +24,7 @@ class PasswordField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
         $options['type'] = 'password';
 

@@ -30,6 +30,10 @@ abstract class InputField extends AbstractField
     public function __construct($options)
     {
         parent::__construct($options);
+        if(isset($options['pattern'])){
+            $this->setPattern($options['pattern']);
+        }
+
     }
 
     /**

@@ -24,7 +24,7 @@ class TextField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
         $options['type'] = 'text';
 

@@ -31,7 +31,7 @@ class TextareaField extends AbstractField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
 
         if (isset($options['value'])) {
@@ -91,9 +91,16 @@ class TextareaField extends AbstractField
     {
         $template = '<textarea ';
         foreach ($this->getTags() as $kTag => $tag) {
-            if ($tag != '') {
-                $template .= $kTag . '="' . htmlspecialchars($tag) . '" ';
+            if (in_array($tag,['',false,null],true)) {
+                continue;
             }
+            $template .= $kTag;
+
+            if ($tag !== true) {
+                $template .= '="' . htmlspecialchars($tag) . '"';
+            }
+
+            $template .= ' ';
         }
 
         $template .= '>' . htmlspecialchars($this->getData()) . '</textarea>';

@@ -27,7 +27,7 @@ class NumberField extends InputField
     /**
      * {@inheritdoc}
      */
-    public function __construct($options)
+    public function __construct($options=[])
     {
         $options['type'] = 'number';
 
@@ -35,17 +35,28 @@ class NumberField extends InputField
             $options['validator']=new NumberValidator();
         }
 
+        $min=null;
         if (isset($options['min'])) {
-            $this->setMin($options['min']);
+            $min=$options['min'];
             unset($options['min']);
         }
 
+        $max=null;
         if (isset($options['max'])) {
-            $this->setMax($options['max']);
+            $max=$options['max'];
             unset($options['max']);
         }
 
         parent::__construct($options);
+
+        if($min!==null){
+            $this->setMin($min);
+        }
+
+        if($max!==null){
+            $this->setMax($max);
+        }
+
     }
 
     /**
