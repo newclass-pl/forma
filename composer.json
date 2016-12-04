@@ -1,0 +1,21 @@
+{
+  "name": "newclass/forma",
+  "description": "The PHP form generator.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michal Tomczak",
+      "email": "michal.tomczak@newclass.pl"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0",
+    "newclass/judex": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Forma\\": "src/Forma"
+    }
+  }
+}
