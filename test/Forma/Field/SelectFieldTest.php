@@ -30,10 +30,10 @@ class SelectFieldTest extends \PHPUnit_Framework_TestCase
     public function testGetData()
     {
         $field = new SelectField();
-        $field->setCollection([
+        $field->setCollection($this->createCollection([
             '1' => 'r1',
             '2' => 'r2',
-        ]);
+        ]));
         $field->setData(1);
         $this->assertEquals(1, $field->getData());
 
@@ -45,20 +45,20 @@ class SelectFieldTest extends \PHPUnit_Framework_TestCase
     public function testValidator()
     {
         $field = new SelectField([
-            'collection' => [
+            'collection' => $this->createCollection([
                 '1' => 'r1',
                 '2' => 'r2',
-            ]
+            ]),
         ]);
 
         $field->setData(1);
         $this->assertTrue($field->validate()->isValid());
 
         $field = new SelectField([
-            'collection' => [
+            'collection' => $this->createCollection([
                 '1' => 'r1',
                 '2' => 'r2',
-            ],
+            ]),
             'multiple' => true,
         ]);
 
@@ -72,10 +72,10 @@ class SelectFieldTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($field->validate()->isValid());
 
         $field = new SelectField([
-            'collection' => [
+            'collection' => $this->createCollection([
                 '1' => 'r1',
                 '2' => 'r2',
-            ],
+            ]),
             'required' => true,
         ]);
 
@@ -107,15 +107,25 @@ class SelectFieldTest extends \PHPUnit_Framework_TestCase
             'name' => 'field-name',
             'required' => true,
             'id' => 'field1',
-            'collection' => [
+            'collection' => $this->createCollection([
                 '1' => 'r1',
                 '2' => 'r2',
-            ]
+            ]),
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>', $field->labelRender());
         $this->assertEquals('<select name="field-name" required id="field1" ><option value="1" >r1</option><option value="2" >r2</option></select>',
             $field->componentRender());
 
+    }
+
+    private function createCollection($data)
+    {
+        $values=[];
+        foreach($data as $key=>$record){
+            $values[]=['value'=>$key,'label'=>$record];
+        }
+
+        return $values;
     }
 }

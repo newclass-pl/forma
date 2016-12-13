@@ -86,7 +86,10 @@ class SelectField extends AbstractField
              * @var CollectionValidator $validator
              */
             $validator=$this->getValidator(CollectionValidator::class);
-            $validator->setCollection(array_keys($this->getCollection()));
+            $values=array_map(function($item){
+                return $item['value'];
+            },$this->getCollection());
+            $validator->setCollection($values);
         }
         catch (ValidatorException $e){
             //ignore
@@ -188,9 +191,9 @@ class SelectField extends AbstractField
 
         $template .= '>';
         $values = (is_array($this->getData()) ? $this->getData() : [$this->getData()]);
-        foreach ($this->collection as $kOption=>$option) {
-            $template .= '<option value="' . htmlspecialchars($kOption) . '" ' .
-                (in_array($kOption, $values) ? 'selected' : '') . '>' . htmlspecialchars($option) .
+        foreach ($this->collection as $option) {
+            $template .= '<option value="' . htmlspecialchars($option['value']) . '" ' .
+                (in_array($option['value'], $values) ? 'selected' : '') . '>' . htmlspecialchars($option['label']) .
                 '</option>';
         }
 
