@@ -14,6 +14,7 @@
 
 namespace Forma;
 
+use Forma\Formatter\SimpleFieldFormatter;
 use Judex\AbstractValidator;
 use Judex\Validator\NotEmptyValidator;
 use Judex\ValidatorManager;
@@ -25,31 +26,30 @@ use Judex\ValidatorNotFoundException;
  */
 abstract class AbstractField
 {
-
     /**
      * @var mixed[]
      */
     private $tags;
-
     /**
      * @var ValidatorManager
      */
     private $validatorManager;
-
     /**
      * @var bool
      */
     private $valid = true;
-
     /**
      * @var string[]
      */
     private $errors=[];
-
     /**
-     * @var
+     * @var string
      */
     private $label;
+    /**
+     * @var FieldFormatter
+     */
+    private $formatter;
 
     /**
      * @param mixed[] $options - array with configure data. All field is optional eg:
@@ -76,6 +76,14 @@ abstract class AbstractField
             unset($options['label']);
         }
 
+        if(isset($options['formatter'])){
+            $this->setFormatter($options['formatter']);
+            unset($options['formatter']);
+        }
+        else{
+            $this->setFormatter(new SimpleFieldFormatter());
+        }
+
         $options += [
             'value' => '',
             'name' => null,
@@ -91,13 +99,39 @@ abstract class AbstractField
     }
 
     /**
+     * @param FieldFormatter $formatter
+     * @return AbstractField
+     */
+    public function setFormatter(FieldFormatter $formatter){
+        $this->formatter=$formatter;
+        return $this;
+    }
+
+    /**
+     * @return FieldFormatter
+     */
+    public function getFormatter()
+    {
+        return $this->formatter;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCustomFormatter(){
+        return !($this->formatter instanceof SimpleFieldFormatter);
+    }
+
+    /**
      * Set html tag name
      *
      * @param string $name - value of tag name:
+     * @return AbstractField
      */
     public function setName($name)
     {
         $this->tags['name'] = $name;
+        return $this;
     }
 
 
@@ -115,10 +149,12 @@ abstract class AbstractField
      * Set html tag id
      *
      * @param string $id - value of tag id:
+     * @return AbstractField
      */
     public function setId($id)
     {
         $this->tags['id'] = $id;
+        return $this;
     }
 
     /**
@@ -135,10 +171,12 @@ abstract class AbstractField
      * Add validator class rule
      *
      * @param AbstractValidator $validator - validator class
+     * @return AbstractField
      */
     public function addValidator($validator)
     {
         $this->validatorManager->addValidator($validator);
+        return $this;
     }
 
     /**
@@ -166,24 +204,28 @@ abstract class AbstractField
      * Add part html tag class
      *
      * @param string $name - class name:
+     * @return AbstractField
      */
     public function addClass($name)
     {
         $classParts = explode(' ', $this->tags['class']);
         foreach ($classParts as $part) {
-            if ($name == $part) {
-                return;
+            if ($name === $part) {
+                return $this;
             }
         }
 
         $this->tags['class'] .= ' ' . $name;
         $this->tags['class'] = trim($this->tags['class']);
+
+        return $this;
     }
 
     /**
      * Remove part html tag class
      *
      * @param string $name - class name:
+     * @return AbstractField
      */
     public function removeClass($name)
     {
@@ -197,6 +239,7 @@ abstract class AbstractField
 
         $this->tags['class'] = trim($className);
 
+        return $this;
     }
 
     /**
@@ -213,10 +256,12 @@ abstract class AbstractField
      * Set label name for field
      *
      * @param string $label
+     * @return AbstractField
      */
     public function setLabel($label)
     {
         $this->label = $label;
+        return $this;
     }
 
     /**
@@ -233,6 +278,7 @@ abstract class AbstractField
      * Set html tag required
      *
      * @param bool $flag - if true then required else optional
+     * @return AbstractField
      */
     public function setRequired($flag)
     {
@@ -248,6 +294,8 @@ abstract class AbstractField
                 //ignore
             }
         }
+
+        return $this;
     }
 
     /**
@@ -265,10 +313,12 @@ abstract class AbstractField
      *
      * @param string $name - tag name
      * @param mixed $value - value of tag
+     * @return AbstractField
      */
-    public function setTag($name, $value)
+    public function setAttribute($name, $value)
     {
         $this->tags[$name] = $value;
+        return $this;
     }
 
     /**
@@ -291,7 +341,7 @@ abstract class AbstractField
      *
      * @return mixed[]
      */
-    public function getTags()
+    public function getAttributes()
     {
         return $this->tags;
     }
@@ -320,7 +370,7 @@ abstract class AbstractField
      * Set error message
      *
      * @param string $error - message
-     * @return $this
+     * @return AbstractField
      */
     public function addError($error)
     {
@@ -331,7 +381,7 @@ abstract class AbstractField
 
     /**
      * @param string[] $errors
-     * @return $this
+     * @return AbstractField
      */
     public function setError($errors)
     {
@@ -346,7 +396,9 @@ abstract class AbstractField
      *
      * @return string
      */
-    abstract public function render();
+    public function render(){
+        return $this->formatter->render($this);
+    }
 
     /**
      * Set confirmed data

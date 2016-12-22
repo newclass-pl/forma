@@ -84,7 +84,7 @@ class FileField extends InputField
      */
     public function setMultiple($flag)
     {
-        $this->setTag('multiple', $flag);
+        $this->setAttribute('multiple', $flag);
     }
 
     /**
@@ -94,7 +94,7 @@ class FileField extends InputField
      */
     public function isMultiple()
     {
-        $tags = $this->getTags();
+        $tags = $this->getAttributes();
         return (isset($tags['multiple']) && $tags['multiple']);
     }
 
@@ -105,7 +105,7 @@ class FileField extends InputField
      */
     public function setAccept($accept)
     {
-        $this->setTag('accept', $accept);
+        $this->setAttribute('accept', $accept);
 
         try {
             /**
@@ -194,7 +194,7 @@ class FileField extends InputField
     {
         $template = '<input ';
 
-        foreach ($this->getTags() as $kTag => $tag) {
+        foreach ($this->getAttributes() as $kTag => $tag) {
 
             if (in_array($tag, [
                 '',

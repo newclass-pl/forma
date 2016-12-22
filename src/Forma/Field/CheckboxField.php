@@ -72,10 +72,11 @@ class CheckboxField extends InputField
      * Set value of tag checked
      *
      * @param boolean $flag - if true then checked else unchecked
+     * @return \Forma\AbstractField
      */
     public function setChecked($flag)
     {
-        return $this->setTag('checked', $flag);
+        return $this->setAttribute('checked', $flag);
     }
 
 }

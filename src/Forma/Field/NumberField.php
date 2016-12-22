@@ -66,7 +66,7 @@ class NumberField extends InputField
      */
     public function setMin($value)
     {
-        $this->setTag('min', $value);
+        $this->setAttribute('min', $value);
         try {
             /**
              * @var NumberValidator $validator
@@ -95,7 +95,7 @@ class NumberField extends InputField
      */
     public function setMax($value)
     {
-        $this->setTag('max', $value);
+        $this->setAttribute('max', $value);
         try {
             /**
              * @var NumberValidator $validator

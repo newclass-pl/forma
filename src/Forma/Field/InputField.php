@@ -43,7 +43,7 @@ abstract class InputField extends AbstractField
      */
     public function setPattern($pattern)
     {
-        $this->setTag('pattern', $pattern);
+        $this->setAttribute('pattern', $pattern);
         $this->addValidator(new RegExValidator($pattern));
     }
 
@@ -64,7 +64,7 @@ abstract class InputField extends AbstractField
      */
     public function setValue($value)
     {
-        $this->setTag('value', $value);
+        $this->setAttribute('value', $value);
     }
 
     /**
@@ -75,16 +75,6 @@ abstract class InputField extends AbstractField
     public function getValue()
     {
         return $this->getTag('value');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function render()
-    {
-        $template = $this->labelRender();
-        $template .= $this->componentRender();
-        return $template;
     }
 
     /**
@@ -101,7 +91,7 @@ abstract class InputField extends AbstractField
     public function componentRender()
     {
         $template = '<input ';
-        foreach ($this->getTags() as $kTag => $tag) {
+        foreach ($this->getAttributes() as $kTag => $tag) {
             if (in_array($tag,['',false,null],true)) {
                 continue;
             }

@@ -15,7 +15,7 @@
 namespace Forma;
 
 use Forma\Field\FileField;
-use Forma\Formatter\BasicFormFormatter;
+use Forma\Formatter\SimpleFormFormatter;
 use Forma\Transformer\BasicFormTransformer;
 
 /**
@@ -35,12 +35,7 @@ class FormBuilder
     /**
      * @var string[]
      */
-    private $formTags = [];
-
-    /**
-     * @var string[]
-     */
-    private $submitTags = [];
+    private $attributes = [];
     /**
      * @var bool
      */
@@ -67,19 +62,13 @@ class FormBuilder
      */
     public function __construct()
     {
-        $this->formatter = new BasicFormFormatter();
+        $this->setFormatter(new SimpleFormFormatter());
         $this->transformer = new BasicFormTransformer();
-        $this->formTags = [
+        $this->attributes = [
             'method' => 'post',
             'id' => null,
             'class' => null,
             'enctype' => null
-        ];
-
-        $this->submitTags = [
-            'value' => 'Apply',
-            'id' => null,
-            'class' => null
         ];
     }
 
@@ -87,31 +76,44 @@ class FormBuilder
      * Set formatter with html rule pattern
      *
      * @param FormFormatter $formatter
+     * @return FormBuilder
      */
     public function setFormatter(FormFormatter $formatter)
     {
         $this->formatter = $formatter;
+        return $this;
+    }
+
+    /**
+     * @return FormFormatter
+     */
+    public function getFormatter(){
+        return $this->formatter;
     }
 
     /**
      * Set designer with rule to generate fields
      *
      * @param Designer $designer
+     * @return FormBuilder
      */
     public function setDesigner(Designer $designer)
     {
         $this->designer = $designer;
         $this->designer->build($this);
+        return $this;
     }
 
     /**
      * Set transformer with rule to encode/decode data
      *
      * @param Transformer $transformer
+     * @return FormBuilder
      */
     public function setTransformer(Transformer $transformer)
     {
         $this->transformer = $transformer;
+        return $this;
     }
 
     /**
@@ -125,40 +127,29 @@ class FormBuilder
     }
 
     /**
-     * Set form tags
-     *
-     * @param string[] $tags - array with data (all field is optional):
-     * [
-     *    'method'=>'post' //"post" or "get"
-     *    ,'id'=>'id1' //html tag id
-     *    ,'class'=>'class1' //html tag class
-     *    ,'enctype'=>'multipart/form-data' //html tag enctype eg. "text/plain", "multipart/form-data" or "application/x-www-form-urlencoded"
-     *    ]
+     * @param string $name
+     * @param string $value
+     * @return FormBuilder
      */
-    public function setFormTags($tags)
+    public function setAttribute($name,$value)
     {
-        $this->formTags = array_merge($this->formTags, $tags);
+        $this->attributes[$name] = $value;
+        return $this;
     }
 
     /**
-     * Set submit button tags
-     *
-     * @param string[] $tags - array with data:
-     * [
-     *    'value'=> 'Apply' //label button, default: Apply
-     *    ,'id'=>'id1' //html tag id
-     *    ,'class'=>'class1' //html tag class
-     * ]
+     * @return string[]
      */
-    public function setSubmitTags($tags)
+    public function getAttributes()
     {
-        $this->submitTags = array_merge($this->submitTags, $tags);
+        return $this->attributes;
     }
 
     /**
      * Add form field
      *
      * @param AbstractField $field
+     * @return FormBuilder
      */
     public function addField(AbstractField $field)
     {
@@ -175,15 +166,21 @@ class FormBuilder
         }
 
         if ($field instanceof FileField) {//FIXME change on event?
-            $this->formTags['enctype'] = 'multipart/form-data';
+            $this->attributes['enctype'] = 'multipart/form-data';
         }
 
+        if(!$field->isCustomFormatter()){
+            $field->setFormatter($this->getFormatter()->getFieldFormatter());
+        }
+
+        return $this;
     }
 
     /**
      * Remove field from generator
      *
      * @param string $name - field name
+     * @return FormBuilder
      */
     public function removeField($name)
     {
@@ -193,6 +190,8 @@ class FormBuilder
                 break;
             }
         }
+
+        return $this;
     }
 
     /**
@@ -202,14 +201,7 @@ class FormBuilder
      */
     public function render()
     {
-        $html = $this->formatter->renderFormBegin($this->formTags);
-        foreach ($this->fields as $field) {
-            $html .= $this->formatter->renderField($field);
-        }
-
-        $html .= $this->renderSubmit();
-        $html .= $this->renderEnd();
-        return $html;
+        return $this->formatter->render($this);
     }
 
     /**
@@ -217,15 +209,9 @@ class FormBuilder
      *
      * @return string with html fields
      */
-    public function renderFields()
+    public function fieldsRender()
     {
-        $html = '';
-
-        foreach ($this->fields as $field) {
-            $html .= $this->formatter->renderField($field);
-        }
-
-        return $html;
+        return $this->formatter->fieldsRender($this);
     }
 
     /**
@@ -234,14 +220,9 @@ class FormBuilder
      * @param string $name - field name
      * @return string with html field
      */
-    public function renderField($name)
+    public function fieldRender($name)
     {
-        $html = '';
-
-        $field = $this->getField($name);
-        $html .= $this->formatter->renderField($field);
-
-        return $html;
+        return $this->getField($name)->render();
     }
 
     /**
@@ -249,9 +230,9 @@ class FormBuilder
      *
      * @return string - with html open form tag
      */
-    public function renderBegin()
+    public function beginRender()
     {
-        return $this->formatter->renderFormBegin($this->formTags);
+        return $this->formatter->beginRender($this);
     }
 
     /**
@@ -259,19 +240,9 @@ class FormBuilder
      *
      * @return string - with html close form tag
      */
-    public function renderEnd()
+    public function endRender()
     {
-        return $this->formatter->renderFormEnd();
-    }
-
-    /**
-     * Generate html string for open form submit
-     *
-     * @return string - with html open form submit
-     */
-    public function renderSubmit()
-    {
-        return $this->formatter->renderSubmit($this->submitTags);
+        return $this->formatter->endRender($this);
     }
 
     /**
@@ -426,12 +397,12 @@ class FormBuilder
         $request = $this->request;
         $this->isConfirmed = false;
 
-        if ($this->formTags['method'] === 'post' && $request->getMethod() === 'POST') {
+        if ($this->attributes['method'] === 'post' && $request->getMethod() === 'POST') {
             $this->isConfirmed = true;
         }
 
         $query = $request->getQuery();
-        if (count($this->fields) > 0 && $this->formTags['method'] == 'get' &&
+        if (count($this->fields) > 0 && $this->attributes['method'] == 'get' &&
             isset($query[$this->fields[0]->getName()])
         ) {
             $this->isConfirmed = true;
@@ -441,7 +412,7 @@ class FormBuilder
             return;
         }
 
-        if ($this->formTags['method'] === 'post') {
+        if ($this->attributes['method'] === 'post') {
             $storage = $request->getData();
         } else {
             $storage = $request->getQuery();
@@ -533,4 +504,5 @@ class FormBuilder
 
         return $errors;
     }
+
 }

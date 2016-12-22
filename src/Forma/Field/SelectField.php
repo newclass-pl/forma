@@ -103,7 +103,7 @@ class SelectField extends AbstractField
      */
     public function setMultiple($flag)
     {
-        $this->setTag('multiple', $flag);
+        $this->setAttribute('multiple', $flag);
     }
 
     /**
@@ -113,18 +113,8 @@ class SelectField extends AbstractField
      */
     public function isMultiple()
     {
-        $tags = $this->getTags();
+        $tags = $this->getAttributes();
         return (isset($tags['multiple']) && $tags['multiple']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function render()
-    {
-        $template = $this->labelRender();
-        $template .= $this->componentRender();
-        return $template;
     }
 
     /**
@@ -166,7 +156,7 @@ class SelectField extends AbstractField
     public function componentRender()
     {
         $template = '<select ';
-        foreach ($this->getTags() as $kTag => $tag) {
+        foreach ($this->getAttributes() as $kTag => $tag) {
             if (in_array($tag, [
                 '',
                 false,

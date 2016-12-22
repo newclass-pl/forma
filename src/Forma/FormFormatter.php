@@ -20,29 +20,35 @@ namespace Forma;
  */
 interface FormFormatter
 {
-
-    /**
-     * @param AbstractField $field
-     */
-    public function renderField(AbstractField $field);
-
     /**
      * Method generated html for form open html element
      *
-     * @param string[] $tags - tag list
+     * @param FormBuilder $builder
+     * @return string
      */
-    public function renderFormBegin($tags);
+    public function beginRender(FormBuilder $builder);
 
     /**
      * Method generated html for form close html element
+     * @param FormBuilder $builder
+     * @return string
      */
-    public function renderFormEnd();
+    public function endRender(FormBuilder $builder);
 
     /**
-     * Method generated html for form submit button
-     *
-     * @param string[] $tags - tag list
+     * @param FormBuilder $builder
+     * @return string
      */
-    public function renderSubmit($tags);
+    public function fieldsRender(FormBuilder $builder);
 
+    /**
+     * @param FormBuilder $builder
+     * @return string
+     */
+    public function render(FormBuilder $builder);
+
+    /**
+     * @return FieldFormatter
+     */
+    public function getFieldFormatter();
 }

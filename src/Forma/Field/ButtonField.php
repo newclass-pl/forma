@@ -20,36 +20,20 @@ use Forma\AbstractField;
  * FormBuilder field
  * @author Michal Tomczak (michal.tomczak@newclass.pl)
  */
-class TextareaField extends AbstractField
+class ButtonField extends AbstractField
 {
-
-    /**
-     * @var string
-     */
-    private $data = '';
-
     /**
      * {@inheritdoc}
      */
-    public function __construct($options=[])
+    public function __construct($options = [])
     {
-
-        if (isset($options['value'])) {
-            $this->data = $options['value'];
-            unset($options['value']);
-        }
-
+        $options['type'] = 'button';
         parent::__construct($options);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function render()
+    public function setType($type)
     {
-        $template = $this->labelRender();
-        $template .= $this->componentRender();
-        return $template;
+        $this->setAttribute('type', $type);
     }
 
     /**
@@ -57,7 +41,7 @@ class TextareaField extends AbstractField
      */
     public function labelRender()
     {
-        return '<label for="' . $this->getId() . '">' . htmlspecialchars($this->getLabel()) . '</label>';
+        return '';
     }
 
     /**
@@ -65,7 +49,7 @@ class TextareaField extends AbstractField
      */
     public function setData($value)
     {
-        $this->data = $value;
+        //ignore
     }
 
     /**
@@ -73,7 +57,7 @@ class TextareaField extends AbstractField
      */
     public function getData()
     {
-        return $this->data;
+        //ignore
     }
 
     /**
@@ -81,7 +65,7 @@ class TextareaField extends AbstractField
      */
     public function clearData()
     {
-        return $this->data = null;
+        //ignore
     }
 
     /**
@@ -89,21 +73,25 @@ class TextareaField extends AbstractField
      */
     public function componentRender()
     {
-        $template = '<textarea ';
-        foreach ($this->getAttributes() as $kTag => $tag) {
-            if (in_array($tag,['',false,null],true)) {
+        $template = '<button ';
+        foreach ($this->getAttributes() as $kAttribute => $attribute) {
+            if (in_array($attribute, [
+                '',
+                false,
+                null
+            ], true)) {
                 continue;
             }
-            $template .= $kTag;
+            $template .= $kAttribute;
 
-            if ($tag !== true) {
-                $template .= '="' . htmlspecialchars($tag) . '"';
+            if ($attribute !== true) {
+                $template .= '="' . htmlspecialchars($attribute) . '"';
             }
 
             $template .= ' ';
         }
 
-        $template .= '>' . htmlspecialchars($this->getData()) . '</textarea>';
+        $template .= '>' . htmlspecialchars($this->getLabel()) . '</button>';
 
         return $template;
     }
