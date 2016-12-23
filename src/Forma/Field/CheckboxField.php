@@ -65,7 +65,7 @@ class CheckboxField extends InputField
      */
     public function isChecked()
     {
-        return $this->getTag('checked');
+        return $this->getAttribute('checked');
     }
 
     /**

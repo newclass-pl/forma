@@ -126,7 +126,7 @@ class FileField extends InputField
      */
     public function getAccept()
     {
-        return $this->getTag('accept');
+        return $this->getAttribute('accept');
     }
 
     /**

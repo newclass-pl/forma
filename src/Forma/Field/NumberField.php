@@ -85,7 +85,7 @@ class NumberField extends InputField
      */
     public function getMin()
     {
-        return $this->getTag('min');
+        return $this->getAttribute('min');
     }
 
     /**
@@ -114,7 +114,7 @@ class NumberField extends InputField
      */
     public function getMax()
     {
-        return $this->getTag('max');
+        return $this->getAttribute('max');
     }
 
 }

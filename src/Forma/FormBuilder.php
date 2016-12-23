@@ -470,14 +470,7 @@ class FormBuilder
         }
 
         foreach ($this->fields as $field) {
-            if (!$field->getValidators()) {
-                continue;
-            }
-            $result = $field->validate();
-            if ($result->isValid()) {
-                continue;
-            }
-            $field->setError($result->getErrors());
+            $field->validate();
         }
     }
 

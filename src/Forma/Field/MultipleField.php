@@ -16,23 +16,33 @@ namespace Forma\Field;
 
 use Forma\AbstractField;
 use Forma\FieldFormatter;
-use Forma\FieldNotFoundException;
+use Judex\Validator\NotEmptyValidator;
+use Judex\ValidatorNotFoundException;
 
 /**
  * Class FragmentField
  * @package Forma\Field
  * @author Michal Tomczak (michal.tomczak@newclass.pl)
  */
-class FragmentField extends AbstractField
+class MultipleField extends AbstractField
 {
     /**
-     * @var AbstractField[]
+     * @var AbstractField
      */
-    private $fields=[];
+    private $field;
     /**
      * @var mixed[]
      */
-    private $data;
+    private $data=[];
+
+    /**
+     * @var AbstractField[]
+     */
+    private $dataFields=[];
+    /**
+     * @var int
+     */
+    private $min;
 
     /**
      * FragmentField constructor.
@@ -40,8 +50,9 @@ class FragmentField extends AbstractField
      */
     public function __construct($options=[])
     {
-        if(isset($options['fields'])){
-            $this->addFields($options['fields']);
+        if(isset($options['field'])){
+            $this->setField($options['field']);
+            unset($options['field']);
         }
         parent::__construct($options);
     }
@@ -53,9 +64,19 @@ class FragmentField extends AbstractField
      */
     public function setData($data)
     {
+        if(!$data){
+            $data=[];
+        }
         $this->data=$data;
-        foreach ($this->fields as $field){
-            $field->setData($this->data[$field->getName()]);
+        $index=0;
+        foreach($this->data as $record){
+            $prefix=[];
+            $prefix[]=$this->getName();
+            $prefix[]=$index++;
+            $dataField=clone $this->field;
+            $dataField->setPrefix($prefix);
+            $dataField->setData($record[$dataField->getName()]);
+            $this->dataFields[]=$dataField;
         }
     }
 
@@ -85,11 +106,8 @@ class FragmentField extends AbstractField
     public function componentRender()
     {
         $template='';
-        $prefix=$this->getPrefix();
-        $prefix[]=$this->getName();
-        foreach($this->getFields() as $field){
-            $field->setPrefix($prefix);
-            $template.=$field->render();
+        foreach($this->dataFields as $dataField){
+            $template.=$dataField->render();
         }
         return $template;
     }
@@ -105,20 +123,11 @@ class FragmentField extends AbstractField
     }
 
     /**
-     * @param AbstractField[] $fields
-     */
-    private function addFields($fields){
-        foreach ($fields as $field){
-            $this->addField($field);
-        }
-    }
-
-    /**
      * @param AbstractField $field
      */
-    public function addField($field)
+    public function setField($field)
     {
-        $this->fields[]=$field;
+        $this->field=$field;
         if($this->getFormatter() && !$field->isCustomFormatter()){
             $field->setFormatter($this->getFormatter());
         }
@@ -130,34 +139,31 @@ class FragmentField extends AbstractField
      */
     public function setFormatter(FieldFormatter $formatter)
     {
-        foreach ($this->getFields() as $field){
-            if(!$field->isCustomFormatter()){
-                $field->setFormatter($formatter);
-            }
+        if(!$this->getField()->isCustomFormatter()){
+            $this->getField()->setFormatter($formatter);
         }
+
         return parent::setFormatter($formatter);
     }
 
     /**
-     * @return AbstractField[]
+     * @return AbstractField
      */
-    public function getFields(){
-        return $this->fields;
+    public function getField(){
+        return $this->field;
     }
 
     /**
-     * @param string $name
-     * @return AbstractField
-     * @throws FieldNotFoundException
+     * @param string $variable
+     * @return string
      */
-    public function getField($name){
-        foreach ($this->fields as $field) {
-            if ($field->getName() == $name) {
-                return $field;
-            }
-        }
-
-        throw new FieldNotFoundException($name);
+    public function prototypeRender($variable='__index__')
+    {
+        $prefix=$this->getPrefix();
+        $prefix[]=$this->getName();
+        $prefix[]=$variable;
+        $this->field->setPrefix($prefix);
+        return $this->field->render();
     }
 
     /**
@@ -166,27 +172,24 @@ class FragmentField extends AbstractField
     public function validate()
     {
         $errors=[];
-        foreach($this->fields as $field){
+        $result=$this->validatorManager->validate($this->getData());
+        if(!$result->isValid()){
+            $errors=$result->getErrors();
+        }
+
+        foreach($this->dataFields as $field){
             $field->validate();
             if($field->isValid()){
-               continue;
+                continue;
             }
 
             foreach($field->getErrors() as $error){
                 $errors[]=$field->getName().': '.$error;
             }
         }
-
         $this->setErrors($errors);
+
         return $this;
     }
 
-    /**
-     *
-     */
-    public function __clone(){
-        foreach ($this->fields as &$field){
-            $field=clone $field;
-        }
-    }
 }

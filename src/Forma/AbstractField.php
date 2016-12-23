@@ -29,11 +29,11 @@ abstract class AbstractField
     /**
      * @var mixed[]
      */
-    private $tags;
+    private $attributes;
     /**
      * @var ValidatorManager
      */
-    private $validatorManager;
+    protected $validatorManager;
     /**
      * @var bool
      */
@@ -50,15 +50,23 @@ abstract class AbstractField
      * @var FieldFormatter
      */
     private $formatter;
+    /**
+     * @var string[]
+     */
+    private $prefix;
 
+    /**
+     * @var string[]
+     */
+    private $specialRender=['id','name'];
     /**
      * @param mixed[] $options - array with configure data. All field is optional eg:
      * [
-     *    'name'=>'{text}' //tag name
+     *    'name'=>'{text}' //attribute name
      *    ,'validator'=>'{text}' //validator class name
-     *    ,'id'=>'{text}' //tag id
-     *    ,'value'=>'{text}' //tag value
-     *    ,'required'=>{boolean} //tag required
+     *    ,'id'=>'{text}' //attribute id
+     *    ,'value'=>'{text}' //attribute value
+     *    ,'required'=>{boolean} //attribute required
      *    ,...
      * ]
      */
@@ -85,14 +93,14 @@ abstract class AbstractField
         }
 
         $options += [
+            'name'=>'',
             'value' => '',
-            'name' => null,
             'id' => null,
             'class' => '',
             'required' => false
         ];
 
-        $this->tags = $options;
+        $this->attributes = $options;
 
         $this->setRequired($this->isRequired());//invoke configure validator by execute setters
 
@@ -123,48 +131,48 @@ abstract class AbstractField
     }
 
     /**
-     * Set html tag name
+     * Set html attribute name
      *
-     * @param string $name - value of tag name:
+     * @param string $name - value of attribute name:
      * @return AbstractField
      */
     public function setName($name)
     {
-        $this->tags['name'] = $name;
+        $this->attributes['name'] = $name;
         return $this;
     }
 
 
     /**
-     * Get value of html tag name
+     * Get value of html attribute name
      *
      * @return string
      */
     public function getName()
     {
-        return $this->tags['name'];
+        return $this->attributes['name'];
     }
 
     /**
-     * Set html tag id
+     * Set html attribute id
      *
-     * @param string $id - value of tag id:
+     * @param string $id - value of attribute id:
      * @return AbstractField
      */
     public function setId($id)
     {
-        $this->tags['id'] = $id;
+        $this->attributes['id'] = $id;
         return $this;
     }
 
     /**
-     * Get value of html tag id
+     * Get value of html attribute id
      *
      * @return string
      */
     public function getId()
     {
-        return $this->tags['id'];
+        return $this->attributes['id'];
     }
 
     /**
@@ -201,35 +209,35 @@ abstract class AbstractField
     }
 
     /**
-     * Add part html tag class
+     * Add part html attribute class
      *
      * @param string $name - class name:
      * @return AbstractField
      */
     public function addClass($name)
     {
-        $classParts = explode(' ', $this->tags['class']);
+        $classParts = explode(' ', $this->attributes['class']);
         foreach ($classParts as $part) {
             if ($name === $part) {
                 return $this;
             }
         }
 
-        $this->tags['class'] .= ' ' . $name;
-        $this->tags['class'] = trim($this->tags['class']);
+        $this->attributes['class'] .= ' ' . $name;
+        $this->attributes['class'] = trim($this->attributes['class']);
 
         return $this;
     }
 
     /**
-     * Remove part html tag class
+     * Remove part html attribute class
      *
      * @param string $name - class name:
      * @return AbstractField
      */
     public function removeClass($name)
     {
-        $classParts = explode(' ', $this->tags['class']);
+        $classParts = explode(' ', $this->attributes['class']);
         $className = '';
         foreach ($classParts as $part) {
             if ($name != $part) {
@@ -237,19 +245,19 @@ abstract class AbstractField
             }
         }
 
-        $this->tags['class'] = trim($className);
+        $this->attributes['class'] = trim($className);
 
         return $this;
     }
 
     /**
-     * Get value of html tag class
+     * Get value of html attribute class
      *
      * @return string
      */
     public function getClass()
     {
-        return $this->tags['class'];
+        return $this->attributes['class'];
     }
 
     /**
@@ -275,14 +283,14 @@ abstract class AbstractField
     }
 
     /**
-     * Set html tag required
+     * Set html attribute required
      *
      * @param bool $flag - if true then required else optional
      * @return AbstractField
      */
     public function setRequired($flag)
     {
-        $this->tags['required'] = $flag;
+        $this->attributes['required'] = $flag;
         if($flag){
             $this->addValidator(new NotEmptyValidator());
         }
@@ -299,51 +307,51 @@ abstract class AbstractField
     }
 
     /**
-     * Get value of html tag required
+     * Get value of html attribute required
      *
      * @return bool
      */
     public function isRequired()
     {
-        return $this->tags['required'];
+        return $this->attributes['required'];
     }
 
     /**
-     * Set html tag
+     * Set html attribute
      *
-     * @param string $name - tag name
-     * @param mixed $value - value of tag
+     * @param string $name - attribute name
+     * @param mixed $value - value of attribute
      * @return AbstractField
      */
     public function setAttribute($name, $value)
     {
-        $this->tags[$name] = $value;
+        $this->attributes[$name] = $value;
         return $this;
     }
 
     /**
-     * Get html tag
+     * Get html attribute
      *
-     * @param string $name - tag name
+     * @param string $name - attribute name
      * @return mixed
      * @throws AttributeNotFoundException
      */
-    public function getTag($name)
+    public function getAttribute($name)
     {
-        if (!isset($this->tags[$name])) {
+        if (!isset($this->attributes[$name])) {
             throw new AttributeNotFoundException($name);
         }
-        return $this->tags[$name];
+        return $this->attributes[$name];
     }
 
     /**
-     * Get all html tags
+     * Get all html attributes
      *
      * @return mixed[]
      */
     public function getAttributes()
     {
-        return $this->tags;
+        return $this->attributes;
     }
 
     /**
@@ -383,7 +391,7 @@ abstract class AbstractField
      * @param string[] $errors
      * @return AbstractField
      */
-    public function setError($errors)
+    public function setErrors($errors)
     {
         foreach ($errors as $error){
             $this->addError($error);
@@ -398,6 +406,21 @@ abstract class AbstractField
      */
     public function render(){
         return $this->formatter->render($this);
+    }
+
+    /**
+     * @param string[] $prefix
+     */
+    public function setPrefix(array $prefix){
+        $this->prefix=$prefix;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
     }
 
     /**
@@ -434,19 +457,95 @@ abstract class AbstractField
     abstract public function labelRender();
 
     /**
-     * @return \Judex\Result
+     * @return AbstractField
      */
     public function validate()
     {
-        return $this->validatorManager->validate($this->getData());
+        $result=$this->validatorManager->validate($this->getData());
+        if(!$result->isValid()){
+            $this->setErrors($result->getErrors());
+        }
+
+        return $this;
     }
 
     /**
      * @param string $validatorName
      */
-    private function removeValidator($validatorName)
+    protected function removeValidator($validatorName)
     {
         $this->validatorManager->removeValidator($validatorName);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAttributesName()
+    {
+        return array_keys($this->getAttributes());
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    protected function attributeRender($name)
+    {
+        if(in_array($name,$this->specialRender)){
+            $method=$name.'Render';
+            return call_user_func([$this,$method]);
+        }
+
+        $template='';
+        $value=$this->getAttribute($name);
+        if (in_array($value, [
+            '',
+            false,
+            null
+        ], true)) {
+            return $template;
+        }
+
+        $template .= $name;
+
+        if ($value !== true) {
+            $template .= '="' . htmlspecialchars($value) . '"';
+        }
+
+        return $template;
+    }
+
+    /**
+     * @return string
+     */
+    protected function nameRender(){
+        $partsName=$this->prefix;
+        $partsName[]=$this->getAttribute('name');
+        $nameMain=$partsName[0];
+        array_shift($partsName);
+
+        $template='name="';
+        $template.=$nameMain;
+        foreach($partsName as $partName){
+            $template.='['.$partName.']';
+        }
+        $template.='"';
+
+        return $template;
+    }
+
+    /**
+     * @return string
+     */
+    protected function idRender(){
+        $partsName=$this->prefix;
+        $partsName[]=$this->getAttribute('name');
+
+        $template='id="';
+        $template.=implode('_',$partsName);
+        $template.='"';
+
+        return $template;
     }
 
 }

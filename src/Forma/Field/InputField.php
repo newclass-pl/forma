@@ -54,7 +54,7 @@ abstract class InputField extends AbstractField
      */
     public function getPattern()
     {
-        return $this->getTag('pattern');
+        return $this->getAttribute('pattern');
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class InputField extends AbstractField
      */
     public function getValue()
     {
-        return $this->getTag('value');
+        return $this->getAttribute('value');
     }
 
     /**
@@ -91,19 +91,11 @@ abstract class InputField extends AbstractField
     public function componentRender()
     {
         $template = '<input ';
-        foreach ($this->getAttributes() as $kTag => $tag) {
-            if (in_array($tag,['',false,null],true)) {
-                continue;
-            }
-            $template .= $kTag;
-
-            if ($tag !== true) {
-                $template .= '="' . htmlspecialchars($tag) . '"';
-            }
-
+        foreach ($this->getAttributesName() as $attribute) {
+            $template.=$this->attributeRender($attribute);
             $template .= ' ';
-
         }
+
         $template .= '/>';
         return $template;
 

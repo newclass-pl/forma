@@ -74,20 +74,8 @@ class ButtonField extends AbstractField
     public function componentRender()
     {
         $template = '<button ';
-        foreach ($this->getAttributes() as $kAttribute => $attribute) {
-            if (in_array($attribute, [
-                '',
-                false,
-                null
-            ], true)) {
-                continue;
-            }
-            $template .= $kAttribute;
-
-            if ($attribute !== true) {
-                $template .= '="' . htmlspecialchars($attribute) . '"';
-            }
-
+        foreach ($this->getAttributesName() as $attribute) {
+            $template.=$this->attributeRender($attribute);
             $template .= ' ';
         }
 
