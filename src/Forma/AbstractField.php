@@ -261,6 +261,24 @@ abstract class AbstractField
     }
 
     /**
+     * @return bool
+     */
+    public function isDisabled()
+    {
+        return isset($this->attributes['disabled']) && $this->attributes['disabled']===true;
+    }
+
+    /**
+     * @param bool $flag
+     * @return AbstractField
+     */
+    public function setDisabled($flag){
+        $this->attributes['disabled']=$flag;
+
+        return $this;
+    }
+
+    /**
      * Set label name for field
      *
      * @param string $label
@@ -461,6 +479,9 @@ abstract class AbstractField
      */
     public function validate()
     {
+        if($this->isDisabled()){
+            return $this;
+        }
         $result=$this->validatorManager->validate($this->getData());
         if(!$result->isValid()){
             $this->setErrors($result->getErrors());
