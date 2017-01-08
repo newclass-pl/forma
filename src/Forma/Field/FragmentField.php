@@ -40,9 +40,8 @@ class FragmentField extends AbstractField
      */
     public function __construct($options=[])
     {
-        if(isset($options['fields'])){
-            $this->addFields($options['fields']);
-        }
+        $this->options=array_merge($this->options,['fields']);
+
         parent::__construct($options);
     }
 
@@ -55,7 +54,9 @@ class FragmentField extends AbstractField
     {
         $this->data=$data;
         foreach ($this->fields as $field){
-            $field->setData($this->data[$field->getName()]);
+            if (isset($data[$field->getName()])) {
+                $field->setData($this->data[$field->getName()]);
+            }
         }
     }
 
@@ -107,7 +108,8 @@ class FragmentField extends AbstractField
     /**
      * @param AbstractField[] $fields
      */
-    private function addFields($fields){
+    public function setFields($fields){
+        $this->fields=[];
         foreach ($fields as $field){
             $this->addField($field);
         }
@@ -119,7 +121,7 @@ class FragmentField extends AbstractField
     public function addField($field)
     {
         $this->fields[]=$field;
-        if($this->getFormatter() && !$field->isCustomFormatter()){
+        if($this->getFormatter() && $field->getFormatter()===null){
             $field->setFormatter($this->getFormatter());
         }
     }
@@ -131,7 +133,7 @@ class FragmentField extends AbstractField
     public function setFormatter(FieldFormatter $formatter)
     {
         foreach ($this->getFields() as $field){
-            if(!$field->isCustomFormatter()){
+            if($field->getFormatter()===null){
                 $field->setFormatter($formatter);
             }
         }
@@ -173,7 +175,7 @@ class FragmentField extends AbstractField
             }
 
             foreach($field->getErrors() as $error){
-                $errors[]=$field->getName().': '.$error;
+                $errors[]=$field->getLabel().': '.$error;
             }
         }
 

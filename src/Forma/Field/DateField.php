@@ -14,6 +14,7 @@
 namespace Forma\Field;
 
 use Judex\Validator\DateValidator;
+use Validator\Date;
 
 /**
  * FormBuilder field
@@ -29,11 +30,11 @@ class DateField extends InputField
     {
         $options['type'] = 'date';
 
-        if (!isset($options['validator'])) {
-            $options['validator']=new DateValidator();
-        }
-
         parent::__construct($options);
+
+        if(!$this->getValidators()){
+            $this->addValidator(new DateValidator());
+        }
 
     }
 

@@ -25,13 +25,13 @@ class CheckboxField extends InputField
      */
     public function __construct($options=[])
     {
-        $options += [
-            'checked' => false
-        ];
+        $this->options=array_merge($this->options,['checked']);
 
         $options['type'] = 'checkbox';
+        $options+=['checked'=>false];
 
         parent::__construct($options);
+
     }
 
     /**

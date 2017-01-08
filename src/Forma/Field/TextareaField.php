@@ -33,23 +33,7 @@ class TextareaField extends AbstractField
      */
     public function __construct($options=[])
     {
-
-        if (isset($options['value'])) {
-            $this->data = $options['value'];
-            unset($options['value']);
-        }
-
         parent::__construct($options);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function render()
-    {
-        $template = $this->labelRender();
-        $template .= $this->componentRender();
-        return $template;
     }
 
     /**
@@ -90,16 +74,8 @@ class TextareaField extends AbstractField
     public function componentRender()
     {
         $template = '<textarea ';
-        foreach ($this->getAttributes() as $kTag => $tag) {
-            if (in_array($tag,['',false,null],true)) {
-                continue;
-            }
-            $template .= $kTag;
-
-            if ($tag !== true) {
-                $template .= '="' . htmlspecialchars($tag) . '"';
-            }
-
+        foreach ($this->getAttributesName() as $attribute) {
+            $template.=$this->attributeRender($attribute);
             $template .= ' ';
         }
 

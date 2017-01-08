@@ -29,10 +29,9 @@ abstract class InputField extends AbstractField
      */
     public function __construct($options)
     {
+        $this->options=array_merge($this->options,['pattern','type']);
+
         parent::__construct($options);
-        if(isset($options['pattern'])){
-            $this->setPattern($options['pattern']);
-        }
 
     }
 
@@ -77,6 +76,12 @@ abstract class InputField extends AbstractField
         return $this->getAttribute('value');
     }
 
+    /**
+     * @param string $type
+     */
+    protected function setType($type){
+        $this->setAttribute('type',$type);
+    }
     /**
      * {@inheritdoc}
      */

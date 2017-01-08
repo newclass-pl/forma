@@ -27,13 +27,8 @@ class ButtonField extends AbstractField
      */
     public function __construct($options = [])
     {
-        $options['type'] = 'button';
+        $this->setAttribute('type', 'button');
         parent::__construct($options);
-    }
-
-    public function setType($type)
-    {
-        $this->setAttribute('type', $type);
     }
 
     /**

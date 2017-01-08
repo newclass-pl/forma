@@ -41,38 +41,18 @@ class FileField extends InputField
     public function __construct($options = [])
     {
 
-        $options += array(
-            'multiple' => false
-        );
+        $this->options=array_merge($this->options,['multiple','accept','maxSize']);
 
         $options['type'] = 'file';
 
-        if (!isset($options['validator'])) {
-            $options['validator'] = new FileValidator();
-        }
-
-        $accept = null;
-        if (isset($options['accept'])) {
-            $accept = $options['accept'];
-            unset($options['accept']);
-        }
-
-        $maxSize = null;
-        if (isset($options['maxSize'])) {
-            $maxSize = $options['maxSize'];
-            unset($options['maxSize']);
-        } else {
-            $maxSize = $this->getServerMaxSize();
-        }
-
         parent::__construct($options);
 
-        if ($accept) {
-            $this->setAccept($accept);
+        if($this->getMaxSize()===null){
+            $this->setMaxSize($this->getServerMaxSize());
         }
 
-        if ($maxSize) {
-            $this->setMaxSize($maxSize);
+        if(!$this->getValidators()){
+            $this->addValidator(new FileValidator());
         }
 
     }

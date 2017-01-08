@@ -29,32 +29,15 @@ class NumberField extends InputField
      */
     public function __construct($options=[])
     {
+
+        $this->options=array_merge($this->options,['min','max']);
+
         $options['type'] = 'number';
-
-        if (!isset($options['validator'])) {
-            $options['validator']=new NumberValidator();
-        }
-
-        $min=null;
-        if (isset($options['min'])) {
-            $min=$options['min'];
-            unset($options['min']);
-        }
-
-        $max=null;
-        if (isset($options['max'])) {
-            $max=$options['max'];
-            unset($options['max']);
-        }
 
         parent::__construct($options);
 
-        if($min!==null){
-            $this->setMin($min);
-        }
-
-        if($max!==null){
-            $this->setMax($max);
+        if(!$this->getValidators()){
+            $this->addValidator(new NumberValidator());
         }
 
     }

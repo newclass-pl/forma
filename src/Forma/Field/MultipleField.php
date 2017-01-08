@@ -16,8 +16,6 @@ namespace Forma\Field;
 
 use Forma\AbstractField;
 use Forma\FieldFormatter;
-use Judex\Validator\NotEmptyValidator;
-use Judex\ValidatorNotFoundException;
 
 /**
  * Class FragmentField
@@ -39,10 +37,6 @@ class MultipleField extends AbstractField
      * @var AbstractField[]
      */
     private $dataFields=[];
-    /**
-     * @var int
-     */
-    private $min;
 
     /**
      * FragmentField constructor.

@@ -29,11 +29,11 @@ class EmailField extends InputField
     {
         $options['type'] = 'email';
 
-        if (!isset($options['validator'])) {
-            $options['validator']=new EmailValidator();
-        }
-
         parent::__construct($options);
+
+        if(!$this->getValidators()){
+            $this->addValidator(new EmailValidator());
+        }
 
     }
 

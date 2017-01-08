@@ -14,8 +14,6 @@
 
 namespace Forma;
 
-use Exception;
-
 /**
  * Class FormException
  * @author Michal Tomczak (michal.tomczak@newclass.pl)

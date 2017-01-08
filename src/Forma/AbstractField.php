@@ -41,7 +41,7 @@ abstract class AbstractField
     /**
      * @var string[]
      */
-    private $errors=[];
+    private $errors = [];
     /**
      * @var string
      */
@@ -58,60 +58,89 @@ abstract class AbstractField
     /**
      * @var string[]
      */
-    private $specialRender=['id','name'];
+    private $specialRender = [
+        'id',
+        'name'
+    ];
+
     /**
-     * @param mixed[] $options - array with configure data. All field is optional eg:
-     * [
-     *    'name'=>'{text}' //attribute name
-     *    ,'validator'=>'{text}' //validator class name
-     *    ,'id'=>'{text}' //attribute id
-     *    ,'value'=>'{text}' //attribute value
-     *    ,'required'=>{boolean} //attribute required
-     *    ,...
-     * ]
+     * @var string[]
+     */
+    protected $options = [
+        'attributes',
+        'validators',
+        'label',
+        'formatter',
+        'required',
+        'name',
+        'id',
+        'class',
+        'disabled',
+    ];
+
+    /**
+     * @param mixed[][] $options - array with configure data. All field is optional.
+     * @throws InvalidArgumentException
+     * @throws MethodOptionNotFoundException
      */
     public function __construct($options)
     {
 
-        $this->validatorManager = new ValidatorManager();
-        if (isset($options['validator'])) {
-            $this->addValidator($options['validator']);
-            unset($options['validator']);
-        }
-
-        if (isset($options['label'])) {
-            $this->setLabel($options['label']);
-            unset($options['label']);
-        }
-
-        if(isset($options['formatter'])){
-            $this->setFormatter($options['formatter']);
-            unset($options['formatter']);
-        }
-        else{
-            $this->setFormatter(new SimpleFieldFormatter());
-        }
-
-        $options += [
-            'name'=>'',
+        $attributes = [
+            'name' => '',
             'value' => '',
             'id' => null,
             'class' => '',
             'required' => false
         ];
 
-        $this->attributes = $options;
+        $this->setAttributes($attributes);
 
-        $this->setRequired($this->isRequired());//invoke configure validator by execute setters
+        $this->validatorManager = new ValidatorManager();
+        foreach ($options as $kOption => $option) {
+            if (!in_array($kOption, $this->options)) {
+                throw new InvalidArgumentException($kOption);
+            }
+            $methodName = 'set' . ucfirst($kOption);
+            if (method_exists($this, $methodName)) {
+                call_user_func_array([
+                    $this,
+                    $methodName
+                ], [$option]);
+                continue;
+            }
 
+            $methodName = 'add' . ucfirst($kOption);
+            if (method_exists($this, $methodName)) {
+                call_user_func_array([
+                    $this,
+                    $methodName
+                ], [$option]);
+                continue;
+            }
+
+            throw new MethodOptionNotFoundException($kOption);
+
+        }
+
+    }
+
+    /**
+     * @param AbstractValidator $validators
+     */
+    public function addValidators($validators){
+        foreach ($validators as $validator) {
+            $this->addValidator($validator);
+        }
     }
 
     /**
      * @param FieldFormatter $formatter
      * @return AbstractField
      */
-    public function setFormatter(FieldFormatter $formatter){
-        $this->formatter=$formatter;
+    public function setFormatter(FieldFormatter $formatter)
+    {
+        $this->formatter = $formatter;
         return $this;
     }
 
@@ -121,13 +150,6 @@ abstract class AbstractField
     public function getFormatter()
     {
         return $this->formatter;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCustomFormatter(){
-        return !($this->formatter instanceof SimpleFieldFormatter);
     }
 
     /**
@@ -265,15 +287,16 @@ abstract class AbstractField
      */
     public function isDisabled()
     {
-        return isset($this->attributes['disabled']) && $this->attributes['disabled']===true;
+        return isset($this->attributes['disabled']) && $this->attributes['disabled'] === true;
     }
 
     /**
      * @param bool $flag
      * @return AbstractField
      */
-    public function setDisabled($flag){
-        $this->attributes['disabled']=$flag;
+    public function setDisabled($flag)
+    {
+        $this->attributes['disabled'] = $flag;
 
         return $this;
     }
@@ -309,14 +332,12 @@ abstract class AbstractField
     public function setRequired($flag)
     {
         $this->attributes['required'] = $flag;
-        if($flag){
+        if ($flag) {
             $this->addValidator(new NotEmptyValidator());
-        }
-        else{
-            try{
+        } else {
+            try {
                 $this->removeValidator(NotEmptyValidator::class);
-            }
-            catch (ValidatorNotFoundException $e){
+            } catch (ValidatorNotFoundException $e) {
                 //ignore
             }
         }
@@ -411,7 +432,7 @@ abstract class AbstractField
      */
     public function setErrors($errors)
     {
-        foreach ($errors as $error){
+        foreach ($errors as $error) {
             $this->addError($error);
         }
         return $this;
@@ -422,15 +443,20 @@ abstract class AbstractField
      *
      * @return string
      */
-    public function render(){
+    public function render()
+    {
+        if(!$this->formatter){
+            $this->formatter=new SimpleFieldFormatter();
+        }
         return $this->formatter->render($this);
     }
 
     /**
      * @param string[] $prefix
      */
-    public function setPrefix(array $prefix){
-        $this->prefix=$prefix;
+    public function setPrefix(array $prefix)
+    {
+        $this->prefix = $prefix;
     }
 
     /**
@@ -472,18 +498,18 @@ abstract class AbstractField
      *
      * @return string
      */
-    abstract public function labelRender();
+    abstract public function labelRender(); //FIXME allow set attribute or html class name?
 
     /**
      * @return AbstractField
      */
     public function validate()
     {
-        if($this->isDisabled()){
+        if ($this->isDisabled()) {
             return $this;
         }
-        $result=$this->validatorManager->validate($this->getData());
-        if(!$result->isValid()){
+        $result = $this->validatorManager->validate($this->getData());
+        if (!$result->isValid()) {
             $this->setErrors($result->getErrors());
         }
 
@@ -512,13 +538,16 @@ abstract class AbstractField
      */
     protected function attributeRender($name)
     {
-        if(in_array($name,$this->specialRender)){
-            $method=$name.'Render';
-            return call_user_func([$this,$method]);
+        if (in_array($name, $this->specialRender)) {
+            $method = $name . 'Render';
+            return call_user_func([
+                $this,
+                $method
+            ]);
         }
 
-        $template='';
-        $value=$this->getAttribute($name);
+        $template = '';
+        $value = $this->getAttribute($name);
         if (in_array($value, [
             '',
             false,
@@ -539,18 +568,19 @@ abstract class AbstractField
     /**
      * @return string
      */
-    protected function nameRender(){
-        $partsName=$this->prefix;
-        $partsName[]=$this->getAttribute('name');
-        $nameMain=$partsName[0];
+    protected function nameRender()
+    {
+        $partsName = $this->prefix;
+        $partsName[] = $this->getAttribute('name');
+        $nameMain = $partsName[0];
         array_shift($partsName);
 
-        $template='name="';
-        $template.=$nameMain;
-        foreach($partsName as $partName){
-            $template.='['.$partName.']';
+        $template = 'name="';
+        $template .= $nameMain;
+        foreach ($partsName as $partName) {
+            $template .= '[' . $partName . ']';
         }
-        $template.='"';
+        $template .= '"';
 
         return $template;
     }
@@ -558,15 +588,28 @@ abstract class AbstractField
     /**
      * @return string
      */
-    protected function idRender(){
-        $partsName=$this->prefix;
-        $partsName[]=$this->getAttribute('name');
+    protected function idRender()
+    {
+        $partsName = $this->prefix;
+        $partsName[] = $this->getAttribute('name');
 
-        $template='id="';
-        $template.=implode('_',$partsName);
-        $template.='"';
+        $template = 'id="';
+        $template .= implode('_', $partsName);
+        $template .= '"';
 
         return $template;
+    }
+
+    /**
+     * @param mixed[][] $attributes
+     * @return $this
+     */
+    private function setAttributes($attributes)
+    {
+        foreach ($attributes as $kAttribute => $attribute) {
+            $this->setAttribute($kAttribute, $attribute);
+        }
+        return $this;
     }
 
 }

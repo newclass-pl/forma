@@ -169,7 +169,7 @@ class FormBuilder
             $this->attributes['enctype'] = 'multipart/form-data';
         }
 
-        if(!$field->isCustomFormatter()){
+        if($field->getFormatter()===null){
             $field->setFormatter($this->getFormatter()->getFieldFormatter());
         }
 

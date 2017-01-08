@@ -16,7 +16,7 @@ namespace Forma\Field;
 
 use Forma\AbstractField;
 use Judex\Validator\CollectionValidator;
-use Judex\ValidatorException;
+use Judex\ValidatorNotFoundException;
 
 /**
  * FormBuilder field
@@ -36,30 +36,21 @@ class SelectField extends AbstractField
     private $data = null;
 
     /**
+     * @var string
+     */
+    private $emptyRecord;
+
+    /**
      * {@inheritdoc}
      */
-    public function __construct($options=[])
+    public function __construct($options = [])
     {
-        $collection=null;
-        if (isset($options['collection'])) {
-            $collection=$options['collection'];
-            unset($options['collection']);
-        }
-
-        $validator=null;
-        if (!isset($options['validator'])) {
-            $validator=new CollectionValidator();
-        }
+        $this->options = array_merge($this->options, [
+            'collection',
+            'emptyRecord'
+        ]);
 
         parent::__construct($options);
-
-        if($validator){
-            $this->addValidator($validator);
-        }
-
-        if($collection){
-            $this->setCollection($collection);
-        }
     }
 
     /**
@@ -81,19 +72,26 @@ class SelectField extends AbstractField
     {
         $this->collection = $collection;
 
-        try{
-            /**
-             * @var CollectionValidator $validator
-             */
-            $validator=$this->getValidator(CollectionValidator::class);
-            $values=array_map(function($item){
-                return $item['value'];
-            },$this->getCollection());
-            $validator->setCollection($values);
-        }
-        catch (ValidatorException $e){
+        try {
+            $this->removeValidator(CollectionValidator::class);
+        } catch (ValidatorNotFoundException $e) {
             //ignore
         }
+
+        $values = array_map(function ($item) {
+            return $item['value'];
+        }, $this->getCollection());
+
+        $this->addValidator(new CollectionValidator($values));
+
+    }
+
+    /**
+     * @param string $label
+     */
+    public function setEmptyRecord($label)
+    {
+        $this->emptyRecord = $label;
     }
 
     /**
@@ -156,32 +154,24 @@ class SelectField extends AbstractField
     public function componentRender()
     {
         $template = '<select ';
-        foreach ($this->getAttributes() as $kTag => $tag) {
-            if (in_array($tag, [
-                '',
-                false,
-                null
-            ], true)) {
-                continue;
-            }
-
-            $template .= $kTag;
-
-            if ($kTag === 'name' && $this->isMultiple()) {
-                $tag .= '[]';
-            }
-
-            if ($tag !== true) {
-                $template .= '="' . htmlspecialchars($tag) . '"';
-            }
-
+        foreach ($this->getAttributesName() as $attribute) {
+            $template .= $this->attributeRender($attribute);
             $template .= ' ';
-
         }
 
         $template .= '>';
         $values = (is_array($this->getData()) ? $this->getData() : [$this->getData()]);
-        foreach ($this->collection as $option) {
+        $options = $this->getCollection();
+        if ($this->emptyRecord) {
+            $options = array_merge([
+                [
+                    'value' => '',
+                    'label' => htmlspecialchars($this->emptyRecord)
+                ]
+            ], $options);
+        }
+
+        foreach ($options as $option) {
             $template .= '<option value="' . htmlspecialchars($option['value']) . '" ' .
                 (in_array($option['value'], $values) ? 'selected' : '') . '>' . htmlspecialchars($option['label']) .
                 '</option>';
@@ -189,5 +179,17 @@ class SelectField extends AbstractField
 
         $template .= '</select>';
         return $template;
+    }
+
+    /**
+     * @return string
+     */
+    protected function nameRender()
+    {
+        $template = parent::nameRender();
+        if (!$this->isMultiple()) {
+            return $template;
+        }
+        return rtrim($template, '"') . '[]"';
     }
 }

@@ -26,6 +26,6 @@ class SubmitField extends ButtonField
     public function __construct($options = [])
     {
         parent::__construct($options);
-        $this->setType('submit');
+        $this->setAttribute('type', 'submit');
     }
 }
