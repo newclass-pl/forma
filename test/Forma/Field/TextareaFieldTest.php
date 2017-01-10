@@ -71,13 +71,12 @@ class TextareaFieldTest extends \PHPUnit_Framework_TestCase
         $field=new TextareaField([
             'label'=>'My label',
             'name'=>'field-name',
-            'value'=>'20',
             'required'=>true,
             'id'=>'field1',
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>',$field->labelRender());
-        $this->assertEquals('<textarea name="field-name" required id="field1" >20</textarea>',$field->componentRender());
+        $this->assertEquals('<textarea name="field-name"  id="field1"  required ></textarea>',$field->componentRender());
 
     }
 }

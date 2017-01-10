@@ -43,7 +43,9 @@ abstract class InputField extends AbstractField
     public function setPattern($pattern)
     {
         $this->setAttribute('pattern', $pattern);
-        $this->addValidator(new RegExValidator($pattern));
+        $validator=new RegExValidator();
+        $validator->setPattern($pattern);
+        $this->addValidator($validator);
     }
 
     /**

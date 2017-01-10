@@ -82,14 +82,13 @@ class TextFieldTest extends \PHPUnit_Framework_TestCase
         $field=new TextField([
             'label'=>'My label',
             'name'=>'field-name',
-            'value'=>'20',
             'required'=>true,
             'id'=>'field1',
             'pattern'=>'template'
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>',$field->labelRender());
-        $this->assertEquals('<input name="field-name" value="20" required id="field1" pattern="template" type="text" />',$field->componentRender());
+        $this->assertEquals('<input name="field-name"  id="field1"  required pattern="template" type="text" />',$field->componentRender());
 
     }
 }

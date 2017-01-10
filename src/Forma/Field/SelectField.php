@@ -47,7 +47,8 @@ class SelectField extends AbstractField
     {
         $this->options = array_merge($this->options, [
             'collection',
-            'emptyRecord'
+            'emptyRecord',
+			'multiple',
         ]);
 
         parent::__construct($options);
@@ -82,7 +83,10 @@ class SelectField extends AbstractField
             return $item['value'];
         }, $this->getCollection());
 
-        $this->addValidator(new CollectionValidator($values));
+        $validator=new CollectionValidator();
+		$this->addValidator($validator);
+
+        $validator->setRecords($values);
 
     }
 

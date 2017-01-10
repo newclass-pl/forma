@@ -13,6 +13,7 @@
 
 
 namespace Forma\Field;
+
 use Judex\Validator\LengthValidator;
 use Judex\ValidatorNotFoundException;
 
@@ -22,32 +23,33 @@ use Judex\ValidatorNotFoundException;
  */
 class TextField extends InputField
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function __construct($options=[])
-    {
-        $this->options=array_merge($this->options,['collection','emptyRecord','maxLength']);
+	/**
+	 * {@inheritdoc}
+	 */
+	public function __construct($options = [])
+	{
+		$this->options = array_merge($this->options, ['collection', 'emptyRecord', 'maxLength']);
 
-        $options['type'] = 'text';
-        parent::__construct($options);
-    }
+		$options['type'] = 'text';
+		parent::__construct($options);
+	}
 
-    /**
-     * @param int $maxLength
-     */
-    public function setMaxLength($maxLength){
-        try {
-            $this->removeValidator(LengthValidator::class);
-        } catch (ValidatorNotFoundException $e) {
-            //ignore
-        }
+	/**
+	 * @param int $maxLength
+	 */
+	public function setMaxLength($maxLength)
+	{
+		try {
+			$this->removeValidator(LengthValidator::class);
+		} catch (ValidatorNotFoundException $e) {
+			//ignore
+		}
 
-        $this->addValidator(new LengthValidator([
-            'length'=>$maxLength,
-        ]));
+		$this->addValidator(new LengthValidator([
+			'length' => $maxLength,
+		]));
 
-        $this->setAttribute('maxLength',$maxLength);
-    }
+		$this->setAttribute('maxLength', $maxLength);
+	}
 
 }

@@ -70,13 +70,12 @@ class DateFieldTest extends \PHPUnit_Framework_TestCase
         $field=new DateField([
             'label'=>'My label',
             'name'=>'field-name',
-            'value'=>'2012-01-12',
             'required'=>true,
             'id'=>'field1',
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>',$field->labelRender());
-        $this->assertEquals('<input name="field-name" value="2012-01-12" required id="field1" type="date" />',$field->componentRender());
+        $this->assertEquals('<input name="field-name"  id="field1"  required type="date" />',$field->componentRender());
 
     }
 }

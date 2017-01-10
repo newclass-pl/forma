@@ -26,79 +26,81 @@ use Forma\Field\NumberField;
 class NumberFieldTest extends \PHPUnit_Framework_TestCase
 {
 
-    /**
-     *
-     */
-    public function testGetData(){
-        $field=new NumberField();
+	/**
+	 *
+	 */
+	public function testGetData()
+	{
+		$field = new NumberField();
 
-        $field->setData('10');
-        $this->assertEquals('10',$field->getData());
+		$field->setData('10');
+		$this->assertEquals('10', $field->getData());
 
-    }
+	}
 
-    /**
-     *
-     */
-    public function testValidator(){
-        $field=new NumberField([
-            'min'=>-20,
-            'max'=>30,
-        ]);
+	/**
+	 *
+	 */
+	public function testValidator()
+	{
+		$field = new NumberField([
+			'min' => -20,
+			'max' => 30,
+		]);
 
-        $field->setData('-20');
-        $this->assertTrue($field->validate()->isValid());
+		$field->setData('-20');
+		$this->assertTrue($field->validate()->isValid());
 
-        $field->setData('30');
-        $this->assertTrue($field->validate()->isValid());
+		$field->setData('30');
+		$this->assertTrue($field->validate()->isValid());
 
-        $field->setData('');
-        $this->assertTrue($field->validate()->isValid());
+		$field->setData('');
+		$this->assertTrue($field->validate()->isValid());
 
 
-        $field=new NumberField([
-            'required'=>true,
-            'min'=>-20,
-            'max'=>30,
-        ]);
+		$field = new NumberField([
+			'required' => true,
+			'min' => -20,
+			'max' => 30,
+		]);
 
-        $field->setData('0');
-        $result=$field->validate();
-        $this->assertTrue($result->isValid());
+		$field->setData('0');
+		$field->validate();
+		$this->assertTrue($field->isValid());
 
-        $field->setData('');
-        $result=$field->validate();
-        $this->assertFalse($result->isValid());
-        $this->assertEquals(['Value can\'t be empty.'],$result->getErrors());
+		$field->setData('');
+		$field->validate();
+		$this->assertFalse($field->isValid());
+		$this->assertEquals(['Value can\'t be empty.'], $field->getErrors());
 
-        $field->setData('-21');
-        $result=$field->validate();
-        $this->assertFalse($result->isValid());
-        $this->assertEquals(['Value is too small. Min value is -20.'],$result->getErrors());
+		$field->setData('-21');
+		$field->validate();
+		$this->assertFalse($field->isValid());
+		$this->assertEquals(['Value is too small. Min value is -20.'], $field->getErrors());
 
-        $field->setData('31');
-        $result=$field->validate();
-        $this->assertFalse($result->isValid());
-        $this->assertEquals(['Value is too big. Max value is 30.'],$result->getErrors());
+		$field->setData('31');
+		$field->validate();
+		$this->assertFalse($field->isValid());
+		$this->assertEquals(['Value is too big. Max value is 30.'], $field->getErrors());
 
-    }
+	}
 
-    /**
-     *
-     */
-    public function testRender(){
-        $field=new NumberField([
-            'label'=>'My label',
-            'name'=>'field-name',
-            'value'=>'20',
-            'required'=>true,
-            'id'=>'field1',
-            'min'=>10,
-            'max'=>20,
-        ]);
+	/**
+	 *
+	 */
+	public function testRender()
+	{
+		$field = new NumberField([
+			'label' => 'My label',
+			'name' => 'field-name',
+			'required' => true,
+			'id' => 'field1',
+			'min' => 10,
+			'max' => 20,
+		]);
 
-        $this->assertEquals('<label for="field1">My label</label>',$field->labelRender());
-        $this->assertEquals('<input name="field-name" value="20" required id="field1" type="number" min="10" max="20" />',$field->componentRender());
+		$this->assertEquals('<label for="field1">My label</label>', $field->labelRender());
+		$this->assertEquals('<input name="field-name"  id="field1"  required min="10" max="20" type="number" />', $field->componentRender());
 
-    }
+	}
 }

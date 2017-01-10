@@ -114,7 +114,7 @@ class SelectFieldTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>', $field->labelRender());
-        $this->assertEquals('<select name="field-name" required id="field1" ><option value="1" >r1</option><option value="2" >r2</option></select>',
+        $this->assertEquals('<select name="field-name"  id="field1"  required ><option value="1" >r1</option><option value="2" >r2</option></select>',
             $field->componentRender());
 
     }

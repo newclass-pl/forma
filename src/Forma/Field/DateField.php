@@ -32,9 +32,7 @@ class DateField extends InputField
 
         parent::__construct($options);
 
-        if(!$this->getValidators()){
-            $this->addValidator(new DateValidator());
-        }
+		$this->addValidator(new DateValidator());
 
     }
 

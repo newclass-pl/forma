@@ -45,14 +45,10 @@ class FileField extends InputField
 
         $options['type'] = 'file';
 
-        parent::__construct($options);
+		parent::__construct($options);
 
-        if($this->getMaxSize()===null){
+		if($this->getMaxSize()===null){
             $this->setMaxSize($this->getServerMaxSize());
-        }
-
-        if(!$this->getValidators()){
-            $this->addValidator(new FileValidator());
         }
 
     }
@@ -74,8 +70,8 @@ class FileField extends InputField
      */
     public function isMultiple()
     {
-        $tags = $this->getAttributes();
-        return (isset($tags['multiple']) && $tags['multiple']);
+        $attributes = $this->getAttributes();
+        return (isset($attributes['multiple']) && $attributes['multiple']);
     }
 
     /**
@@ -92,12 +88,14 @@ class FileField extends InputField
              * @var FileValidator $validator
              */
             $validator = $this->getValidator(FileValidator::class);
-            $validator->setAccept($accept);
         } catch (ValidatorException $e) {
-            //ignore
+        	$validator=new FileValidator();
+			$this->addValidator($validator);
         }
 
-    }
+		$validator->setAccept($accept);
+
+	}
 
     /**
      * Get html tag accept
@@ -127,10 +125,12 @@ class FileField extends InputField
              * @var FileValidator $validator
              */
             $validator = $this->getValidator(FileValidator::class);
-            $validator->setMaxSize($maxSize);
         } catch (ValidatorException $e) {
-            //ignore
+			$validator=new FileValidator();
+			$this->addValidator($validator);
         }
+		$validator->setMaxSize($maxSize);
+
     }
 
     /**

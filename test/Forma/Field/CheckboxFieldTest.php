@@ -86,7 +86,7 @@ class CheckboxFieldTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>',$field->labelRender());
-        $this->assertEquals('<input name="field-name" value="value" required id="field1" checked type="checkbox" />',$field->componentRender());
+        $this->assertEquals('<input name="field-name" value="value" id="field1"  required checked type="checkbox" />',$field->componentRender());
 
     }
 }

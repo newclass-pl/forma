@@ -53,10 +53,12 @@ class FileFieldTest extends \PHPUnit_Framework_TestCase
         $requestFileMock->method('getSize')->willReturn(8000);
 
         $field->setData($requestFileMock);
-        $this->assertTrue($field->validate()->isValid());
+		$field->validate();
+        $this->assertTrue($field->isValid());
 
         $field->setData('');
-        $this->assertTrue($field->validate()->isValid());
+		$field->validate();
+        $this->assertTrue($field->isValid());
 
         $field = new FileField([
             'required' => true,
@@ -65,16 +67,17 @@ class FileFieldTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $field->setData('');
-        $result = $field->validate();
-        $this->assertFalse($result->isValid());
-        $this->assertEquals(['Value can\'t be empty.'], $result->getErrors());
+        $field->validate();
+        $this->assertFalse($field->isValid());
+        $this->assertEquals(['Value can\'t be empty.'], $field->getErrors());
 
         $field->setData($requestFileMock);
-        $this->assertFalse($field->validate()->isValid());
+		$field->validate();
+        $this->assertFalse($field->isValid());
         $this->assertEquals([
             'Value is not valid file type. Allow: "gif".',
             'File is too big. Max size is "100".'
-        ], $field->validate()->getErrors());
+        ], $field->getErrors());
 
     }
 
@@ -92,7 +95,7 @@ class FileFieldTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals('<label for="field1">My label</label>', $field->labelRender());
-        $this->assertEquals('<input name="field-name[]" required id="field1" multiple type="file"  />',
+        $this->assertEquals('<input name="field-name[]" id="field1" required multiple type="file"  />',
             $field->componentRender());
 
     }

@@ -13,6 +13,8 @@
 
 namespace Forma\Field;
 
+use Forma\AttributeNotFoundException;
+
 /**
  * FormBuilder field
  * @author Michal Tomczak (michal.tomczak@newclass.pl)
@@ -25,7 +27,7 @@ class CheckboxField extends InputField
      */
     public function __construct($options=[])
     {
-        $this->options=array_merge($this->options,['checked']);
+        $this->options=array_merge($this->options,['checked','value']);
 
         $options['type'] = 'checkbox';
         $options+=['checked'=>false];
@@ -34,7 +36,29 @@ class CheckboxField extends InputField
 
     }
 
-    /**
+	/**
+	 * @param string $value
+	 * @return CheckboxField
+	 */
+    public function setValue($value)
+	{
+		$this->setAttribute('value',$value);
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getValue()
+	{
+		try {
+			return $this->getAttribute('value');
+		} catch (AttributeNotFoundException $e) {
+			return null;
+		}
+	}
+
+	/**
      * {@inheritdoc}
      */
     public function setData($value)

@@ -68,7 +68,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
             'number' => 123.32,
         ], $data);
 
-        $this->assertEquals('<FORM method="post"  ><label for="id_0">Checkbox label</label><input name="checkbox" checked type="checkbox" id="id_0" /><label for="id_1">Number label</label><input name="number" type="number" value="123.32" id="id_1" /><BUTTON  >Apply</BUTTON></FORM>',
+        $this->assertEquals('<FORM method="post"  ><div><label for="id_0">Checkbox label</label><input name="checkbox"  id="id_0"   type="checkbox" checked /></div><div><label for="id_1">Number label</label><input name="number" value="123.32" id="id_1"   type="number" /></div></FORM>',
             $builder->render());
     }
 
@@ -110,7 +110,7 @@ class FormBuilderTest extends \PHPUnit_Framework_TestCase
         $data = $builder->getData();
         $this->assertEquals([], $data);
 
-        $this->assertEquals('<FORM method="post"  ><label for="id_0">Checkbox label</label><input name="checkbox" checked type="checkbox" id="id_0" /><label for="id_1">Number label</label><input name="number" type="number" value="unknown" id="id_1" /><ul class="errors"><li>Value is not valid number.</li></ul><BUTTON  >Apply</BUTTON></FORM>',
+        $this->assertEquals('<FORM method="post"  ><div><label for="id_0">Checkbox label</label><input name="checkbox"  id="id_0"   type="checkbox" checked /></div><div><label for="id_1">Number label</label><input name="number" value="unknown" id="id_1"   type="number" /><ul class="errors"><li>Value is not valid number.</li></ul></div></FORM>',
             $builder->render());
     }
 

@@ -24,16 +24,24 @@ use Forma\FieldFormatter;
 class SimpleFieldFormatter implements FieldFormatter
 {
 
-    /**
-     * @param AbstractField $field
-     * @return string
-     */
-    public function render(AbstractField $field)
-    {
-        $template = '<div>';
-        $template .= $field->labelRender();
-        $template .= $field->componentRender();
-        $template .= '</div>';
-        return $template;
-    }
+	/**
+	 * @param AbstractField $field
+	 * @return string
+	 */
+	public function render(AbstractField $field)
+	{
+		$template = '<div>';
+		$template .= $field->labelRender();
+		$template .= $field->componentRender();
+		if (!$field->isValid()) {
+			$template .= '<ul class="errors">';
+			foreach ($field->getErrors() as $error) {
+				$template .= '<li>' . $error . '</li>';
+			}
+			$template .= '</ul>';
+
+		}
+		$template .= '</div>';
+		return $template;
+	}
 }

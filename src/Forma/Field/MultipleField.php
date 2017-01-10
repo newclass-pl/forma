@@ -44,11 +44,9 @@ class MultipleField extends AbstractField
      */
     public function __construct($options=[])
     {
-        if(isset($options['field'])){
-            $this->setField($options['field']);
-            unset($options['field']);
-        }
-        parent::__construct($options);
+		$this->options=array_merge($this->options,['field']);
+
+		parent::__construct($options);
     }
 
     /**

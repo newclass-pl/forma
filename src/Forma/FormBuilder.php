@@ -68,7 +68,7 @@ class FormBuilder
             'method' => 'post',
             'id' => null,
             'class' => null,
-            'enctype' => null
+            'enctype' => null,
         ];
     }
 

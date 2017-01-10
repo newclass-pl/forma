@@ -31,9 +31,7 @@ class EmailField extends InputField
 
         parent::__construct($options);
 
-        if(!$this->getValidators()){
-            $this->addValidator(new EmailValidator());
-        }
+		$this->addValidator(new EmailValidator());
 
     }
 

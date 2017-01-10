@@ -209,6 +209,20 @@ abstract class AbstractField
         return $this;
     }
 
+	/**
+	 * @param string $className
+	 * @return bool
+	 */
+	public function isValidator($className)
+	{
+		try {
+			$this->getValidator($className);
+			return true;
+		} catch (ValidatorNotFoundException $e) {
+			return false;
+		}
+	}
+
     /**
      * Get validators
      *
@@ -432,6 +446,7 @@ abstract class AbstractField
      */
     public function setErrors($errors)
     {
+    	$this->errors=[];
         foreach ($errors as $error) {
             $this->addError($error);
         }
@@ -505,9 +520,12 @@ abstract class AbstractField
      */
     public function validate()
     {
+    	$this->valid=true;
+
         if ($this->isDisabled()) {
             return $this;
         }
+
         $result = $this->validatorManager->validate($this->getData());
         if (!$result->isValid()) {
             $this->setErrors($result->getErrors());
@@ -590,11 +608,11 @@ abstract class AbstractField
      */
     protected function idRender()
     {
-        $partsName = $this->prefix;
-        $partsName[] = $this->getAttribute('name');
+        $partsId = $this->prefix;
+        $partsId[] = $this->getAttribute('id');
 
         $template = 'id="';
-        $template .= implode('_', $partsName);
+        $template .= implode('_', $partsId);
         $template .= '"';
 
         return $template;
