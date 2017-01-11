@@ -46,7 +46,7 @@ class TextField extends InputField
 		}
 
 		$this->addValidator(new LengthValidator([
-			'length' => $maxLength,
+			'max' => $maxLength,
 		]));
 
 		$this->setAttribute('maxLength', $maxLength);
