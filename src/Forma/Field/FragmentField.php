@@ -52,10 +52,9 @@ class FragmentField extends AbstractField
      */
     public function setData($data)
     {
-        $this->data=$data;
         foreach ($this->fields as $field){
             if (isset($data[$field->getName()])) {
-                $field->setData($this->data[$field->getName()]);
+                $field->setData($data[$field->getName()]);
             }
         }
     }
@@ -67,7 +66,11 @@ class FragmentField extends AbstractField
      */
     public function getData()
     {
-        return $this->data;
+    	$data=[];
+    	foreach($this->fields as $field){
+    		$data[$field->getName()]=$field->getData();
+		}
+        return $data;
     }
 
     /**

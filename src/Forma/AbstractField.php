@@ -391,7 +391,7 @@ abstract class AbstractField
      */
     public function getAttribute($name)
     {
-        if (!isset($this->attributes[$name])) {
+        if (!array_key_exists($name,$this->attributes)) {
             throw new AttributeNotFoundException($name);
         }
         return $this->attributes[$name];
