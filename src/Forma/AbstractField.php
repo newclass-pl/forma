@@ -467,6 +467,13 @@ abstract class AbstractField
     }
 
     /**
+     * @return bool
+     */
+    public function isCustomFormatter(){
+        return !($this->formatter instanceof SimpleFieldFormatter);
+    }
+
+    /**
      * @param string[] $prefix
      */
     public function setPrefix(array $prefix)

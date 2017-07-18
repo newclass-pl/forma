@@ -117,7 +117,7 @@ class MultipleField extends AbstractField
     /**
      * @param AbstractField $field
      */
-    public function setField($field)
+    public function setField(AbstractField $field)
     {
         $this->field=$field;
         if($this->getFormatter() && !$field->isCustomFormatter()){
